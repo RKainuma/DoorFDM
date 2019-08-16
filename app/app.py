@@ -40,11 +40,13 @@ def video_feed():
 
 if __name__ == '__main__':
 
-    # arg parse
-    args = interactive_detection.build_argparser().parse_args()
-    devices = [args.device,args.device_head_pose]
-    models = [args.model_face,  args.model_head_pose, ]
-    if "CPU" in devices and args.cpu_extension is None:
+    devices = ['CPU',  'CPU']
+    models = [None, None]
+    init_cpu_extension = 'extension/libcpu_extension.dylib'
+    init_prob_threshold = 0.3
+    init_prob_threshold_face = 0.5
+    init_plugin_dir = None
+    if "CPU" in devices and init_cpu_extension is None:
         print(
             "\nPlease try to specify cpu extensions library path in demo's command line parameters using -l "
             "or --cpu_extension command line argument")
@@ -52,8 +54,8 @@ if __name__ == '__main__':
 
     # Create detectors class instance
     detections = interactive_detection.Detections(
-        devices, models, args.cpu_extension, args.plugin_dir,
-        args.prob_threshold, args.prob_threshold_face, is_async_mode)
+        devices, models, init_cpu_extension, init_plugin_dir,
+        init_prob_threshold, init_prob_threshold_face, is_async_mode)
     models = detections.models  # Get models to display WebUI.
 
     app.run(host='0.0.0.0', threaded=True)
