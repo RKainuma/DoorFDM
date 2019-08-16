@@ -189,7 +189,7 @@ class HeadPoseDetection(BaseDetection):
          "angle_y_fc", shape: [1, 1] - Estimated yaw (in degrees).
          "angle_p_fc", shape: [1, 1] - Estimated pitch (in degrees).
          "angle_r_fc", shape: [1, 1] - Estimated roll (in degrees).
-        Each output contains one float value that represents value in 
+        Each output contains one float value that represents value in
         Tait-Bryan angles (yaw, pitсh or roll).
         """
 

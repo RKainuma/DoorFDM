@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from logging import getLogger, basicConfig, DEBUG, INFO, ERROR
 import os
 import sys
@@ -22,8 +23,8 @@ model_hp_xml = "head-pose-estimation-adas-0001.xml"
 
 
 class Detectors(object):
-    def __init__(self, devices, models, cpu_extension, plugin_dir, prob_threshold, prob_threshold_face, is_async_mode):
-        self.cpu_extension = cpu_extension
+    def __init__(self, devices, models, plugin_dir, prob_threshold, prob_threshold_face, is_async_mode):
+        self.cpu_extension = 'extension/libcpu_extension.dylib' #TODO, need to check platform
         self.plugin_dir = plugin_dir
         self.prob_threshold = prob_threshold
         self.prob_threshold_face = prob_threshold_face
@@ -64,11 +65,10 @@ class Detectors(object):
 
 
 class Detections(Detectors):
-    def __init__(self, devices, models, cpu_extension, plugin_dir,
+    def __init__(self, devices, models, plugin_dir,
                  prob_threshold, prob_threshold_face, is_async_mode):
-        super().__init__(devices, models, cpu_extension, plugin_dir,
+        super().__init__(devices, models,  plugin_dir,
                          prob_threshold, prob_threshold_face, is_async_mode)
-
         # initialize Calculate FPS
         self.accum_time = 0
         self.curr_fps = 0

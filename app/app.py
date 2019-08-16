@@ -42,19 +42,12 @@ if __name__ == '__main__':
 
     devices = ['CPU',  'CPU']
     models = [None, None]
-    init_cpu_extension = 'extension/libcpu_extension.dylib'
+
     init_prob_threshold = 0.3
     init_prob_threshold_face = 0.5
     init_plugin_dir = None
-    if "CPU" in devices and init_cpu_extension is None:
-        print(
-            "\nPlease try to specify cpu extensions library path in demo's command line parameters using -l "
-            "or --cpu_extension command line argument")
-        sys.exit(1)
-
-    # Create detectors class instance
     detections = interactive_detection.Detections(
-        devices, models, init_cpu_extension, init_plugin_dir,
+        devices, models, init_plugin_dir,
         init_prob_threshold, init_prob_threshold_face, is_async_mode)
     models = detections.models  # Get models to display WebUI.
 
