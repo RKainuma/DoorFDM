@@ -14,7 +14,6 @@ basicConfig(level=INFO, format="%(asctime)s %(levelname)s %(name)s %(funcName)s(
 is_async_mode = True
 is_face_detection = True
 is_head_pose_detection = False
-is_facial_landmarks_detection = False
 
 
 def gen(camera):

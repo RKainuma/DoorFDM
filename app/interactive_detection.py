@@ -76,15 +76,6 @@ class Detections(Detectors):
         self.fps = "FPS: ??"
         self.prev_time = timer()
 
-    def object_detection(self, frame, next_frame, is_async_mode):
-        det_time = 0
-        det_time_txt = ""
-
-        det_time, frame = self.ssd_detection.object_inference(
-            frame, next_frame, is_async_mode)
-        frame = self.draw_perf_stats(det_time, det_time_txt, frame,
-                                     is_async_mode)
-        return frame
 
     def face_detection(self, frame, next_frame, is_async_mode,
                        is_head_pose_detection):

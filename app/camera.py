@@ -1,7 +1,4 @@
-""" ref:
-https://github.com/ECI-Robotics/opencv_remote_streaming_processing/
-"""
-
+#!/usr/bin/env python3
 import cv2
 import numpy as np
 import math
@@ -62,12 +59,11 @@ class VideoCamera(object):
             next_frame = None
 
         if is_face_detection:
-            self.frame = self.detections.face_detection(
-                self.frame, next_frame, is_async_mode,is_head_pose_detection)
+            self.frame = self.detections.face_detection(self.frame, next_frame, is_async_mode,is_head_pose_detection)
 
-        ret, jpeg = cv2.imencode('1.jpg', self.frame)
 
         if is_async_mode:
             self.frame = next_frame
 
+        VideoCameraret, jpeg = cv2.imencode('1.jpg', self.frame)
         return jpeg.tostring()
