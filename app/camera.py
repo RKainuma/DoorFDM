@@ -3,15 +3,6 @@ import cv2
 import numpy as np
 import math
 import os
-import sys
-from logging import getLogger, basicConfig, DEBUG, INFO
-from timeit import default_timer as timer
-
-logger = getLogger(__name__)
-
-basicConfig(
-    level=INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(funcName)s(): %(message)s")
 
 resize_prop = (640, 480)
 
@@ -19,11 +10,14 @@ resize_prop = (640, 480)
 class VideoCamera(object):
     def __init__(self, detections, no_v4l):
 
+        self.detections = detections
+        self.is_async_mode = True
+        self.is_face_detection = True
         self.input_stream = 0
         # NOTE need to check os, Linux, Windows or Mac
         if no_v4l:
             self.cap = cv2.VideoCapture(self.input_stream)
-        else: #for Picamera, added VideoCaptureAPIs(cv2.CAP_V4L)
+        else:  # for Picamera, added VideoCaptureAPIs(cv2.CAP_V4L)
             try:
                 self.cap = cv2.VideoCapture(self.input_stream, cv2.CAP_V4L)
             except:
@@ -34,19 +28,18 @@ class VideoCamera(object):
 
         ret, self.frame = self.cap.read()
         cap_prop = self._get_cap_prop()
-        logger.info("cap_pop:{}, frame_prop:{}".format(cap_prop, resize_prop))
 
-        self.detections = detections
 
     def __del__(self):
         self.cap.release()
 
     def _get_cap_prop(self):
+
         return self.cap.get(cv2.CAP_PROP_FRAME_WIDTH), self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT), self.cap.get(cv2.CAP_PROP_FPS)
 
-    def get_frame(self, is_async_mode, is_face_detection,is_head_pose_detection):
+    def get_frame(self):
 
-        if is_async_mode:
+        if self.is_async_mode:
             ret, next_frame = self.cap.read()
             if not ret:
                 return None
@@ -58,12 +51,12 @@ class VideoCamera(object):
             self.frame = cv2.resize(self.frame, resize_prop)
             next_frame = None
 
-        if is_face_detection:
-            self.frame = self.detections.face_detection(self.frame, next_frame, is_async_mode,is_head_pose_detection)
+        if self.is_face_detection:
+            self.frame = self.detections.face_detection(self.frame, next_frame)
 
-
-        if is_async_mode:
+        if self.is_async_mode:
             self.frame = next_frame
 
         VideoCameraret, jpeg = cv2.imencode('1.jpg', self.frame)
+
         return jpeg.tostring()
