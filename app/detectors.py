@@ -168,4 +168,6 @@ class FaceDetection(BaseDetection):
         if is_async_mode:
             self.cur_request_id, self.next_request_id = self.next_request_id, self.cur_request_id
 
+        print(faces)
+
         return faces

@@ -7,6 +7,7 @@ import math
 import numpy as np
 from timeit import default_timer as timer
 from queue import Queue
+import platform
 
 logger = getLogger(__name__)
 
@@ -26,7 +27,10 @@ class Detectors(object):
         self.devices = ['CPU', 'CPU']
         self.models = [None, None]
         self.plugin_dir = None
-        self.cpu_extension = 'extension/libcpu_extension.dylib' #TODO, need to check platform
+        if platform.system()  == 'Darwin':
+            self.cpu_extension = 'extension/libcpu_extension.dylib'
+        else:
+            self.cpu_extension = 'extension/cpu_extension.dll'
         self.prob_threshold = 0.3
         self.prob_threshold_face = 0.5
         self.is_async_mode = True
@@ -72,7 +76,6 @@ class Detections(Detectors):
 
         # ----------- Start Face Detection ---------- #
 
-        logger.debug("** face_detection start **")
         color = (0, 255, 0)
         det_time = 0
         det_time_hp = 0
