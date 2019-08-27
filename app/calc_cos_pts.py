@@ -1,3 +1,6 @@
+'''This is Face-Register script. Save face vector as a file in dir:face_pts/'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from openvino.inference_engine import IENetwork, IEPlugin
 import cv2
 import numpy as np
@@ -24,7 +27,6 @@ class FaceReIdentification():
         self.exec_net = self.plugin.load(network=net, num_requests=2)
 
     def get_feature_vec(self, face_img, outputfile):
-        # img = cv2.imread(face_img)
         in_frame = cv2.resize(face_img, (self.w, self.h))
         in_frame = in_frame.transpose((2, 0, 1))
         in_frame = in_frame.reshape((self.n, self.c, self.h, self.w))

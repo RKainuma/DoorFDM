@@ -1,3 +1,6 @@
+'''Get Face feature vecrots'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from openvino.inference_engine import IENetwork, IEPlugin
 import cv2
 import numpy as np
@@ -25,7 +28,6 @@ class FaceReIdentification():
 
     def get_feature_vec(self, face_img):
         aligned_face = self.facial_landmark.turn_face(face_img)
-        # cv2.imwrite(str(random.randint(1,100))+'.jpg', aligned_face)
         in_frame = cv2.resize(aligned_face, (self.w, self.h))
         in_frame = in_frame.transpose((2, 0, 1))
         in_frame = in_frame.reshape((self.n, self.c, self.h, self.w))
@@ -71,12 +73,5 @@ class FacialLamdmark():
 
             aligned_face = face_img.copy()
             aligned_face = align_face(aligned_face, facial_landmarks[self.face_id])
+
             return aligned_face
-
-
-# if __name__ == "__main__":
-#     face_reidfy = FaceReIdentification()
-#     # print(face_reidfy.get_feature_vec('./ryusukeSam.jpg'))
-    # print(face_reidfy.cos_similarity())
-    # facel_landmark = FacialLamdmark()
-    # print(facel_landmark.turn_face())

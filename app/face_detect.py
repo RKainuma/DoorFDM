@@ -1,3 +1,6 @@
+'''Face detection method, used when calc_cos_pts.py is called'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import requests
 from PIL import Image
 from io import BytesIO
@@ -6,22 +9,24 @@ import numpy as np
 import os
 import sys
 import math
+import platform
 from openvino.inference_engine import IENetwork, IEPlugin
 
 def face_detction(image_path):
-  # Read Image
   frame = cv2.imread(image_path)
-  # resize image with keeping frame width
   scale = 640 / frame.shape[1]
   frame = cv2.resize(frame, dsize=None, fx=scale, fy=scale)
   frame_h, frame_w = frame.shape[:2]
   init_frame = frame.copy()
+
   # Face Detection
   # 1. Plugin initialization for specified device and load extensions library if specified
   device = "CPU"
   fp_path = "./extension/IR/FP32/" if device == "CPU" else "./extension/IR/FP16/"
   plugin = IEPlugin(device=device, plugin_dirs=None)
-  if device == "CPU":
+  if platform.system()  == 'Windows':
+      plugin.add_cpu_extension("./extension/cpu_extension.dll")
+  else:
       plugin.add_cpu_extension("./extension/libcpu_extension.dylib")
 
   # 2.Read IR
@@ -33,6 +38,7 @@ def face_detction(image_path):
   input_blob = next(iter(net.inputs))
   out_blob = next(iter(net.outputs))
   n, c, h, w = net.inputs[input_blob].shape
+
   # 4. Load Model
   exec_net = plugin.load(network=net, num_requests=2)
 
@@ -46,7 +52,6 @@ def face_detction(image_path):
   if exec_net.requests[0].wait(-1) == 0:
       res = exec_net.requests[0].outputs[out_blob]
       faces = res[0][:, np.where(res[0][0][:, 2] > 0.5)] # prob threshold : 0.5
-
 
   # 7. draw faces
   croped_faces = []

@@ -13,17 +13,14 @@ from re_idfy_face import FaceReIdentification
 from face_utils import cos_similarity
 
 logger = getLogger(__name__)
-
 basicConfig(
     level=INFO,
     format="%(asctime)s %(levelname)s %(name)s %(funcName)s(): %(message)s")
 
 FP32 = "extension/IR/FP32/"
 FP16 = "extension/IR/FP16/"
-
 model_fc_xml = "face-detection-retail-0004.xml"
 model_hp_xml = "head-pose-estimation-adas-0001.xml"
-
 face_reidfy = FaceReIdentification()
 
 
@@ -43,12 +40,9 @@ class Detectors(object):
 
     def _load_detectors(self):
         device_fc, device_hp, = self.devices
-        # self.models are used by app.py to display using models
         self.models = self._define_models()
         model_fc, model_hp = self.models
         cpu_extension = self.cpu_extension
-
-        # Create face_detection class instance
         self.face_detectors = detectors.FaceDetection(
             device_fc, model_fc, cpu_extension, self.plugin_dir,
             self.prob_threshold_face, self.is_async_mode)
@@ -57,7 +51,6 @@ class Detectors(object):
         device_fc, device_hp = self.devices
         model_fc,model_hp = self.models
 
-        # set devices and models
         fp_path = FP32 if device_fc == "CPU" else FP16
         model_fc = fp_path + model_fc_xml if model_fc is None else model_fc
         fp_path = FP32 if device_hp == "CPU" else FP16
@@ -69,24 +62,19 @@ class Detectors(object):
 class Detections(Detectors):
     def __init__(self):
         super().__init__()
-        # initialize Calculate FPS
         self.is_async_mode = False
         self.accum_time = 0
         self.curr_fps = 0
         self.fps = "FPS: ??"
         self.prev_time = timer()
 
-
     def face_detection(self, frame, next_frame):
-
-        # ----------- Start Face Detection ---------- #
-
         color = (0, 255, 0)
         det_time = 0
         det_time_hp = 0
         det_time_txt = ""
 
-        frame_h, frame_w = frame.shape[:2]  # shape (h, w, c)
+        frame_h, frame_w = frame.shape[:2]
         is_face_analytics_enabled = True
 
         inf_start = timer()
@@ -98,9 +86,7 @@ class Detections(Detectors):
 
         face_count = faces.shape[2]
         det_time_txt = "face_cnt:{} face:{:.3f} ms ".format(face_count, det_time * 1000)
-        # ----------- Start Face Analytics ---------- #
 
-        # Run face analytics with async mode when detected face count lager than 1.
         if face_count > 1:
             is_face_async_mode = False
         else:
@@ -135,9 +121,6 @@ class Detections(Detectors):
             if xmin < 0 or ymin < 0:
                 return frame
 
-            # Start face analytics
-            # prev_box is previous boxes(faces), which is None at the first time
-            # will be updated with prev face box in async mode
             if is_face_async_mode:
                 next_face_frame = frame[ymin:ymax, xmin:xmax]
                 if next_face_frame is None:
@@ -151,14 +134,12 @@ class Detections(Detectors):
                 if faces_diff > 0.6:
                     print(faces_diff)
 
-            # check face frame.
-            # face_fame is None at the first time with async mode.
             if face_frame is not None:
                 face_w, face_h = face_frame.shape[:2]
-                # Resizing face_frame will be failed when witdh or height of the face_fame is 0 ex. (243, 0, 3)
                 if face_w == 0 or face_h == 0:
                     logger.error(
                         "Unexpected shape of face frame. face_frame.shape:{} {}".
                         format(face_h, face_w))
                     return frame
+
         return frame

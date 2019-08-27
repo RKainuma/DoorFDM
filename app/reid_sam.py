@@ -1,3 +1,6 @@
+'''This is just a Demo script.'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from openvino.inference_engine import IENetwork, IEPlugin
 import cv2
 import numpy as np

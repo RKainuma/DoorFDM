@@ -1,8 +1,12 @@
+'''This is run script with Flask'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from flask import Flask, Response, render_template, request
-from camera import VideoCamera
 import os
 import sys
 import platform
+
+from camera import VideoCamera
 import interactive_detection
 
 app = Flask(__name__)

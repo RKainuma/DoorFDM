@@ -1,10 +1,14 @@
+'''Face detection funcs by using main loop of camera'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import cv2
 import os
 import sys
-from logging import getLogger, basicConfig, DEBUG, INFO
-from openvino.inference_engine import IENetwork, IEPlugin
-from timeit import default_timer as timer
 import numpy as np
+from logging import getLogger, basicConfig, DEBUG, INFO
+from timeit import default_timer as timer
+
+from openvino.inference_engine import IENetwork, IEPlugin
 from re_idfy_face import FaceReIdentification, FacialLamdmark
 
 logger = getLogger(__name__)
@@ -19,12 +23,7 @@ cpu_plugin = None
 
 
 class BaseDetection(object):
-    def __init__(self, device, model_xml, cpu_extension, plugin_dir,
-                 detection_of):
-
-        # Each device's plugin should be initialized only once,
-        # MYRIAD plugin would be failed when createting exec_net(plugin.load method)
-        # Error: "RuntimeError: Can not init USB device: NC_DEVICE_NOT_FOUND"
+    def __init__(self, device, model_xml, cpu_extension, plugin_dir, detection_of):
         global is_myriad_plugin_initialized
         global myriad_plugin
         global is_cpu_plugin_initialized
@@ -45,11 +44,8 @@ class BaseDetection(object):
         else:
             self.plugin = self._init_plugin(device, cpu_extension, plugin_dir)
 
-        # Read IR
         self.net = self._read_ir(model_xml, detection_of)
-        # Load IR model to the plugin
-        self.input_blob, self.out_blob, self.exec_net, self.input_dims, self.output_dims = self._load_ir_to_plugin(
-            device, detection_of)
+        self.input_blob, self.out_blob, self.exec_net, self.input_dims, self.output_dims = self._load_ir_to_plugin(device, detection_of)
 
     def _init_plugin(self, device, cpu_extension, plugin_dir):
         logger.info("Initializing plugin for {} device...".format(device))
@@ -162,8 +158,6 @@ class FaceDetection(BaseDetection):
         res = self.exec_net.requests[self.cur_request_id].outputs[
             self.out_blob]  # res's shape: [1, 1, 200, 7]
 
-        # Get rows whose confidence is larger than prob_threshold.
-        # detected faces are also used by age/gender, emotion, landmark, head pose detection.
         faces = res[0][:, np.where(res[0][0][:, 2] > self.prob_threshold_face)]
 
         if is_async_mode:

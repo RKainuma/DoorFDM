@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+'''Camera setting and get frames with OpenCV, VideoCapture'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import cv2
 import numpy as np
 import math
@@ -9,15 +11,13 @@ resize_prop = (720, 480)
 
 class VideoCamera(object):
     def __init__(self, detections, no_v4l):
-
         self.detections = detections
         self.is_async_mode = False
         self.is_face_detection = True
         self.input_stream = 0
-        # NOTE need to check os, Linux, Windows or Mac
         if no_v4l:
             self.cap = cv2.VideoCapture(self.input_stream)
-        else:  # for Picamera, added VideoCaptureAPIs(cv2.CAP_V4L)
+        else:
             try:
                 self.cap = cv2.VideoCapture(self.input_stream, cv2.CAP_V4L)
             except:
@@ -27,17 +27,14 @@ class VideoCamera(object):
                 os._exit(0)
 
         ret, self.frame = self.cap.read()
-        cap_prop = self._get_cap_prop()
 
     def __del__(self):
         self.cap.release()
 
     def _get_cap_prop(self):
-
         return self.cap.get(cv2.CAP_PROP_FRAME_WIDTH), self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT), self.cap.get(cv2.CAP_PROP_FPS)
 
     def get_frame(self):
-
         if self.is_async_mode:
             ret, next_frame = self.cap.read()
             if not ret:
