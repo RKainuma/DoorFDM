@@ -5,6 +5,7 @@ from logging import getLogger, basicConfig, DEBUG, INFO
 from openvino.inference_engine import IENetwork, IEPlugin
 from timeit import default_timer as timer
 import numpy as np
+from re_idfy_face import FaceReIdentification, FacialLamdmark
 
 logger = getLogger(__name__)
 basicConfig(
@@ -167,7 +168,5 @@ class FaceDetection(BaseDetection):
 
         if is_async_mode:
             self.cur_request_id, self.next_request_id = self.next_request_id, self.cur_request_id
-
-        print(faces)
 
         return faces

@@ -8,6 +8,9 @@ import numpy as np
 from timeit import default_timer as timer
 from queue import Queue
 import platform
+import random
+from re_idfy_face import FaceReIdentification
+from face_utils import cos_similarity
 
 logger = getLogger(__name__)
 
@@ -21,6 +24,8 @@ FP16 = "extension/IR/FP16/"
 model_fc_xml = "face-detection-retail-0004.xml"
 model_hp_xml = "head-pose-estimation-adas-0001.xml"
 
+face_reidfy = FaceReIdentification()
+
 
 class Detectors(object):
     def __init__(self):
@@ -33,7 +38,7 @@ class Detectors(object):
             self.cpu_extension = 'extension/cpu_extension.dll'
         self.prob_threshold = 0.3
         self.prob_threshold_face = 0.5
-        self.is_async_mode = True
+        self.is_async_mode = False
         self._load_detectors()
 
     def _load_detectors(self):
@@ -65,7 +70,7 @@ class Detections(Detectors):
     def __init__(self):
         super().__init__()
         # initialize Calculate FPS
-        self.is_async_mode = True
+        self.is_async_mode = False
         self.accum_time = 0
         self.curr_fps = 0
         self.fps = "FPS: ??"
@@ -97,7 +102,7 @@ class Detections(Detectors):
 
         # Run face analytics with async mode when detected face count lager than 1.
         if face_count > 1:
-            is_face_async_mode = True
+            is_face_async_mode = False
         else:
             is_face_async_mode = False
 
@@ -128,9 +133,6 @@ class Detections(Detectors):
             result = str(face_id) + " " + str(round(face[2] * 100, 1)) + '% '
 
             if xmin < 0 or ymin < 0:
-                logger.info(
-                    "Rapid motion returns negative value(xmin and ymin) which make face_frame None. xmin:{} xmax:{} ymin:{} ymax:{}".
-                    format(xmin, xmax, ymin, ymax))
                 return frame
 
             # Start face analytics
@@ -144,6 +146,10 @@ class Detections(Detectors):
                     xmin, ymin, xmax, ymax = prev_box.astype("int")
             else:
                 face_frame = frame[ymin:ymax, xmin:xmax]
+                ret_reid = face_reidfy.get_feature_vec(face_frame)
+                faces_diff = cos_similarity(ret_reid)
+                if faces_diff > 0.6:
+                    print(faces_diff)
 
             # check face frame.
             # face_fame is None at the first time with async mode.
@@ -155,5 +161,4 @@ class Detections(Detectors):
                         "Unexpected shape of face frame. face_frame.shape:{} {}".
                         format(face_h, face_w))
                     return frame
-
         return frame

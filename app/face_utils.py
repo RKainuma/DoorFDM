@@ -24,3 +24,11 @@ def align_face(face_frame, landmarks):
     aligned_face = cv2.warpAffine(face_frame, M, (w, h))
 
     return aligned_face
+
+def cos_similarity(aligned_face):
+    with open('face_pts/ryu.reid', 'rb') as f:
+        X = np.load(f)
+    Y = aligned_face
+
+    return np.dot(X, Y)/(np.linalg.norm(X) * np.linalg.norm(Y, axis=0))
+

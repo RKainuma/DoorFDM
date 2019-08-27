@@ -4,14 +4,14 @@ import numpy as np
 import math
 import os
 
-resize_prop = (640, 480)
+resize_prop = (720, 480)
 
 
 class VideoCamera(object):
     def __init__(self, detections, no_v4l):
 
         self.detections = detections
-        self.is_async_mode = True
+        self.is_async_mode = False
         self.is_face_detection = True
         self.input_stream = 0
         # NOTE need to check os, Linux, Windows or Mac
@@ -28,7 +28,6 @@ class VideoCamera(object):
 
         ret, self.frame = self.cap.read()
         cap_prop = self._get_cap_prop()
-
 
     def __del__(self):
         self.cap.release()
