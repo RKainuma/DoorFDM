@@ -1,12 +1,10 @@
 '''Camera setting and get frames with OpenCV, VideoCapture'''
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
 import cv2
 import math
 import os
-
-resize_prop = (720, 480)
 
 
 class VideoCamera(object):
@@ -15,6 +13,7 @@ class VideoCamera(object):
         self.is_async_mode = False
         self.is_face_detection = True
         self.input_stream = 0
+        self.resize_prop = (720, 480)
         if no_v4l:
             self.cap = cv2.VideoCapture(self.input_stream)
         else:
@@ -39,12 +38,12 @@ class VideoCamera(object):
             ret, next_frame = self.cap.read()
             if not ret:
                 return None
-            next_frame = cv2.resize(next_frame, resize_prop)
+            next_frame = cv2.resize(next_frame, self.resize_prop)
         else:
             ret, self.frame = self.cap.read()
             if not ret:
                 return None
-            self.frame = cv2.resize(self.frame, resize_prop)
+            self.frame = cv2.resize(self.frame, self.resize_prop)
             next_frame = None
 
         if self.is_face_detection:

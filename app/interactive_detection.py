@@ -1,3 +1,6 @@
+'''Process identify'''
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
 from logging import getLogger, basicConfig, DEBUG, INFO, ERROR
 from timeit import default_timer as timer
 from queue import Queue
@@ -8,11 +11,11 @@ import cv2
 import math
 import platform
 import glob
+import time
 
 from re_idfy_face import FaceReIdentification
 from face_utils import cos_similarity
 import detectors
-import time
 
 logger = getLogger(__name__)
 basicConfig(
@@ -28,15 +31,15 @@ face_reidfy = FaceReIdentification()
 
 class Detectors(object):
     def __init__(self):
-        if platform.system()  == 'Darwin':
+        if platform.system() == 'Darwin':
             self.devices = ['CPU', 'CPU']
-        elif platform.system()  == 'Windows':
+        elif platform.system() == 'Windows':
             self.devices = ['CPU', 'CPU']
         else:
             self.devices = ['MYRIAD', 'MYRIAD']
         self.models = [None, None]
         self.plugin_dir = None
-        if platform.system()  == 'Darwin':
+        if platform.system() == 'Darwin':
             self.cpu_extension = 'extension/libcpu_extension.dylib'
         else:
             self.cpu_extension = 'extension/cpu_extension.dll'
@@ -56,7 +59,7 @@ class Detectors(object):
 
     def _define_models(self):
         device_fc, device_hp = self.devices
-        model_fc,model_hp = self.models
+        model_fc, model_hp = self.models
 
         fp_path = FP32 if device_fc == "CPU" else FP16
         model_fc = fp_path + model_fc_xml if model_fc is None else model_fc
@@ -143,7 +146,7 @@ class Detections(Detectors):
                 ret_reid = face_reidfy.get_feature_vec(face_frame)
                 face_pts_list = glob.glob('./face_pts/*')
                 min_diff = 0
-                threshold = 0.68
+                threshold = 0.7
                 for face_pts_file in face_pts_list:
                     faces_diff, nickname = cos_similarity(ret_reid, face_pts_file)
                     if (faces_diff > threshold) and (faces_diff > min_diff):
@@ -167,8 +170,8 @@ class Detections(Detectors):
         end = time.time()
         elapsed = end - start
         self.time_stock.append(elapsed)
-        if sum(self.time_stock) > 5:
-            self.interval =True
+        if sum(self.time_stock) > 4:
+            self.interval = True
             self.time_stock.clear()
             print('Interval END')
         else:

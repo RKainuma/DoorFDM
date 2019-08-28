@@ -1,5 +1,5 @@
 '''Face detection funcs by using main loop of camera'''
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 from logging import getLogger, basicConfig, DEBUG, INFO
 from timeit import default_timer as timer
