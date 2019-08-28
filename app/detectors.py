@@ -1,12 +1,12 @@
 '''Face detection funcs by using main loop of camera'''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from logging import getLogger, basicConfig, DEBUG, INFO
+from timeit import default_timer as timer
+import numpy as np
 import cv2
 import os
 import sys
-import numpy as np
-from logging import getLogger, basicConfig, DEBUG, INFO
-from timeit import default_timer as timer
 
 from openvino.inference_engine import IENetwork, IEPlugin
 from re_idfy_face import FaceReIdentification, FacialLamdmark

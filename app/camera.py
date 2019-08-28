@@ -1,8 +1,8 @@
 '''Camera setting and get frames with OpenCV, VideoCapture'''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import cv2
 import numpy as np
+import cv2
 import math
 import os
 

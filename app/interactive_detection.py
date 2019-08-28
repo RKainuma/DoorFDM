@@ -1,16 +1,17 @@
 from logging import getLogger, basicConfig, DEBUG, INFO, ERROR
-import os
-import sys
-import detectors
-import cv2
-import math
-import numpy as np
 from timeit import default_timer as timer
 from queue import Queue
+import numpy as np
+import os
+import sys
+import cv2
+import math
 import platform
-import random
+import glob
+
 from re_idfy_face import FaceReIdentification
 from face_utils import cos_similarity
+import detectors
 
 logger = getLogger(__name__)
 basicConfig(
@@ -26,7 +27,12 @@ face_reidfy = FaceReIdentification()
 
 class Detectors(object):
     def __init__(self):
-        self.devices = ['CPU', 'CPU']
+        if platform.system()  == 'Darwin':
+            self.devices = ['CPU', 'CPU']
+        elif platform.system()  == 'Windows':
+            self.devices = ['CPU', 'CPU']
+        else:
+            self.devices = ['MYRIAD', 'MYRIAD']
         self.models = [None, None]
         self.plugin_dir = None
         if platform.system()  == 'Darwin':
@@ -130,10 +136,21 @@ class Detections(Detectors):
             else:
                 face_frame = frame[ymin:ymax, xmin:xmax]
                 ret_reid = face_reidfy.get_feature_vec(face_frame)
-                faces_diff = cos_similarity(ret_reid)
-                if faces_diff > 0.6:
-                    print(faces_diff)
-
+                face_pts_list = glob.glob('./face_pts/*')
+                min_diff = 0
+                threshold = 0.68
+                for face_pts_file in face_pts_list:
+                    faces_diff, nickname = cos_similarity(ret_reid, face_pts_file)
+                    if (faces_diff > threshold) and (faces_diff > min_diff):
+                        min_diff = faces_diff
+                        identified_person = nickname
+                    else:
+                        pass
+                if min_diff > threshold:
+                    print('Found \033[92m{}\033[0m and Condfidence is \033[92m{}\033[0m'.format(identified_person, min_diff))
+                else:
+                    # print('Face Not Identified')
+                    pass
             if face_frame is not None:
                 face_w, face_h = face_frame.shape[:2]
                 if face_w == 0 or face_h == 0:

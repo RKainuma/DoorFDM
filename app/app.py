@@ -9,8 +9,8 @@ import platform
 from camera import VideoCamera
 import interactive_detection
 
-app = Flask(__name__)
 
+app = Flask(__name__)
 detections = interactive_detection.Detections()
 
 
