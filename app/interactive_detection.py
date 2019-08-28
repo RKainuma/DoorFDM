@@ -12,6 +12,7 @@ import math
 import platform
 import glob
 import time
+import pathlib
 
 from re_idfy_face import FaceReIdentification
 from face_utils import cos_similarity
@@ -31,18 +32,20 @@ face_reidfy = FaceReIdentification()
 
 class Detectors(object):
     def __init__(self):
-        if platform.system() == 'Darwin':
+        if platform.system() == 'Windows':
             self.devices = ['CPU', 'CPU']
-        elif platform.system() == 'Windows':
+            extension_path = 'extension/cpu_extension.dll'
+        elif platform.system() == 'Darwin':
             self.devices = ['CPU', 'CPU']
+            extension_path = 'extension/libcpu_extension.dylib'
         else:
             self.devices = ['MYRIAD', 'MYRIAD']
+            extension_path = 'extension/libcpu_extension.dylib'
         self.models = [None, None]
         self.plugin_dir = None
-        if platform.system() == 'Darwin':
-            self.cpu_extension = 'extension/libcpu_extension.dylib'
-        else:
-            self.cpu_extension = 'extension/cpu_extension.dll'
+        extension_path = pathlib.Path(extension_path)
+        ab_extension_path = str(extension_path.resolve())
+        self.cpu_extension = ab_extension_path
         self.prob_threshold = 0.3
         self.prob_threshold_face = 0.5
         self.is_async_mode = False

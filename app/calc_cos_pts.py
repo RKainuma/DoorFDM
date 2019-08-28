@@ -6,6 +6,7 @@ import cv2
 import platform
 import sys
 import os
+import pathlib
 
 from openvino.inference_engine import IENetwork, IEPlugin
 from face_utils import align_face, face_detction
@@ -17,17 +18,21 @@ class FaceReIdentification():
             model_xml = "./extension/IR/FP32/face-reidentification-retail-0095.xml"
             model_bin = "./extension/IR/FP32/face-reidentification-retail-0095.bin"
             self.plugin = IEPlugin(device='CPU', plugin_dirs=None)
-            self.cpu_extension = 'extension/cpu_extension.dll'
+            extension_path = 'extension/cpu_extension.dll'
         elif platform.system() == 'Darwin':
             model_xml = "./extension/IR/FP32/face-reidentification-retail-0095.xml"
             model_bin = "./extension/IR/FP32/face-reidentification-retail-0095.bin"
             self.plugin = IEPlugin(device='CPU', plugin_dirs=None)
-            self.cpu_extension = 'extension/libcpu_extension.dylib'
+            extension_path = 'extension/libcpu_extension.dylib'
         else:
             model_xml = "./extension/IR/FP16/face-reidentification-retail-0095.xml"
             model_bin = "./extension/IR/FP16/face-reidentification-retail-0095.bin"
             self.plugin = IEPlugin(device='MYRIAD', plugin_dirs=None)
-            self.cpu_extension = 'extension/libcpu_extension.dylib'
+            extension_path = 'extension/libcpu_extension.dylib'
+
+        extension_path = pathlib.Path(extension_path)
+        ab_extension_path = str(extension_path.resolve())
+        self.cpu_extension = ab_extension_path
 
         net = IENetwork(model=model_xml, weights=model_bin)
         self.input_blob = next(iter(net.inputs))

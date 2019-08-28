@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import platform
 import os
+import pathlib
 
 from openvino.inference_engine import IENetwork, IEPlugin
 
@@ -48,17 +49,23 @@ def face_detction(image_path):
     # 1. Plugin initialization for specified device and load extensions library if specified
     if platform.system() == 'Windows':
         device = "CPU"
+        extension_path = 'extension/cpu_extension.dll'
     elif platform.system() == 'Darwin':
         device = "CPU"
+        extension_path = 'extension/libcpu_extension.dylib'
     else:
         device = 'MYRIAD'
+        extension_path = 'extension/libcpu_extension.dylib'
 
+    extension_path = pathlib.Path(extension_path)
+    ab_extension_path = str(extension_path.resolve())
     fp_path = "./extension/IR/FP32/" if device == "CPU" else "./extension/IR/FP16/"
     plugin = IEPlugin(device=device, plugin_dirs=None)
+
     if platform.system() == 'Windows':
-        plugin.add_cpu_extension("./extension/cpu_extension.dll")
+        plugin.add_cpu_extension(ab_extension_path)
     else:
-        plugin.add_cpu_extension("./extension/libcpu_extension.dylib")
+        plugin.add_cpu_extension(ab_extension_path)
 
     # 2.Read IR
     model_xml = fp_path + "face-detection-adas-0001.xml"
