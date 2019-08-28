@@ -12,6 +12,7 @@ import glob
 from re_idfy_face import FaceReIdentification
 from face_utils import cos_similarity
 import detectors
+import time
 
 logger = getLogger(__name__)
 basicConfig(
@@ -73,8 +74,11 @@ class Detections(Detectors):
         self.curr_fps = 0
         self.fps = "FPS: ??"
         self.prev_time = timer()
+        self.time_stock = []
+        self.interval = True
 
     def face_detection(self, frame, next_frame):
+        start = time.time()
         color = (0, 255, 0)
         det_time = 0
         det_time_hp = 0
@@ -134,6 +138,7 @@ class Detections(Detectors):
                 if prev_box is not None:
                     xmin, ymin, xmax, ymax = prev_box.astype("int")
             else:
+                # Face Identification
                 face_frame = frame[ymin:ymax, xmin:xmax]
                 ret_reid = face_reidfy.get_feature_vec(face_frame)
                 face_pts_list = glob.glob('./face_pts/*')
@@ -146,8 +151,9 @@ class Detections(Detectors):
                         identified_person = nickname
                     else:
                         pass
-                if min_diff > threshold:
+                if (min_diff > threshold) and (self.interval is True):
                     print('Found \033[92m{}\033[0m and Condfidence is \033[92m{}\033[0m'.format(identified_person, min_diff))
+                    self.interval = False
                 else:
                     # print('Face Not Identified')
                     pass
@@ -158,5 +164,14 @@ class Detections(Detectors):
                         "Unexpected shape of face frame. face_frame.shape:{} {}".
                         format(face_h, face_w))
                     return frame
+        end = time.time()
+        elapsed = end - start
+        self.time_stock.append(elapsed)
+        if sum(self.time_stock) > 5:
+            self.interval =True
+            self.time_stock.clear()
+            print('Interval END')
+        else:
+            pass
 
         return frame
