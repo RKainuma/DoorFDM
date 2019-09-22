@@ -2,12 +2,15 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
+from functools import partial
 import cv2
 import platform
 import os
 import pathlib
 
 from openvino.inference_engine import IENetwork, IEPlugin
+
+np.load = partial(np.load, allow_pickle=True) 
 
 
 def align_face(face_frame, landmarks):
